@@ -4,4 +4,6 @@ thought.route("/").get(getAllThoughts)
 
 thought.route("/:id").get(getThought).post(createThought).put(updateThought).delete(deleteThought)
 
-thought.route("/:id/reactions").post(createReaction).delete(deleteReaction)
+thought.route("/:id/reactions").post(createReaction)
+
+thought.route("/:id/reactions/:reactionId").delete(deleteReaction)
