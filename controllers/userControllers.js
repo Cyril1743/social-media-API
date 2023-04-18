@@ -23,7 +23,7 @@ module.exports = {
     async getUserById(req, res) {
         try {
             const user = await User.findOne({ _id: req.params.id })
-            .populate(['post', 'friends'])
+            .populate(['thoughts', 'friends'])
 
             if (!user) {
                 return res.json("No user found")
@@ -31,7 +31,7 @@ module.exports = {
 
             res.status(200).json(user)
         } catch (error) {
-            res.status(500).json(error)
+            res.status(500).json(error.message)
         }
     },
     async updateUser(req, res) {

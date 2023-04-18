@@ -60,6 +60,9 @@ module.exports = {
     async deleteThought(req, res) {
         try {
             const deletedThought = await Thought.findOneAndDelete({ _id: req.params.id })
+            const user = await User.findOneAndUpdate({ username: deletedThought.username }, {
+                $pull: { thoughts: deletedThought.id }
+            })
 
             if (!deletedThought) {
                 return res.status(404).json("No thought with that Id")
@@ -76,8 +79,10 @@ module.exports = {
                 reactionBody: req.body.reactionBody,
                 username: req.body.username
             }
-            const thought = await Thought.findOneAndUpdate({ _id: req.params.id },
-                { $push: { reactions: newReaction } })
+            const thought = await Thought.findOneAndUpdate(
+                { _id: req.params.id },
+                { $push: { reactions: newReaction } },
+                { new: true })
 
             if (!thought) {
                 return res.status(404).json("No thought with that Id")
@@ -90,16 +95,15 @@ module.exports = {
     },
     async deleteReaction(req, res) {
         try {
-            const thought = await Thought.findOneAndUpdate(
-                { _id: req.params.id },
-                { $pull: { reactions: { reactionId: req.params.reactionId } } },
-                { new: true }
-            )
+            const thought = await Thought.findOne({_id : req.params.id})
 
             if (!thought) {
                 return res.status(404).json("No thought with that Id")
             }
 
+            thought.reactions.pull(req.params.reactionId)
+            thought.save()
+            
             res.json(thought)
         } catch (error) {
             res.status(500).json(error)
